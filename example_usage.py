@@ -17,3 +17,7 @@ processor.apply_invert_colors("example_24bit_inverted.bmp")
 # 5. 픽셀화
 processor.load("example_24bit.bmp")  # 원본 다시 로드
 processor.apply_pixelation(pixel_size=20, output_file="example_24bit_pixelated.bmp")
+
+# 6. 좌우반전
+processor.load("example_24bit.bmp")  # 원본 다시 로드
+processor.apply_flip_horizontal("example_24bit_flipped.bmp")

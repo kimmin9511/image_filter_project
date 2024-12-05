@@ -8,9 +8,10 @@ class CustomImageProcessor:
         self.height = None
         self.pixels = None
         self.file_name = file_name
-	
-	if file_name:
-	    self.load(file_name)
+
+        if file_name:
+            self.load(file_name)
+
     def load(self, file_name):
         """BMP 이미지 파일 로드 (24비트 BMP 형식)."""
         try:
@@ -126,6 +127,24 @@ class CustomImageProcessor:
                     for xx in range(x, min(x + pixel_size, self.width)):
                         self.pixels[yy][xx] = avg_color
         self.save(output_file)
+
+    def apply_flip_horizontal(self, output_file):
+        """이미지를 좌우 반전."""
+        if self.pixels is None:
+            print("No image loaded to process.")
+            return
+
+        try:
+            original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
+            for y in range(self.height):
+                # 행의 픽셀 순서를 반전
+                self.pixels[y] = list(reversed(original_pixels[y]))
+
+            # 반전된 이미지를 저장
+            self.save(output_file)
+            print(f"Image flipped horizontally and saved as: {output_file}")
+        except Exception as e:
+            print(f"Error flipping image horizontally: {e}")
 
     def convert_to_24bit(self, input_file, output_file):
         """32비트 BMP 파일을 24비트 BMP로 변환."""
