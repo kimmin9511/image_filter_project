@@ -21,3 +21,11 @@ processor.apply_pixelation(pixel_size=20, output_file="example_24bit_pixelated.b
 # 6. 좌우반전
 processor.load("example_24bit.bmp")  # 원본 다시 로드
 processor.apply_flip_horizontal("example_24bit_flipped.bmp")
+
+#7. 밝기 올리기
+processor.load("example_24bit.bmp")  # 원본 다시 로드
+processor.apply_skin_brightness(
+    brightness_factor=1.3,  # 밝기 증가 비율
+    soften_intensity=25,    # 부드러움 추가 강도
+    output_file="example_24bit_brightness.bmp"  # 결과 저장 파일
+)
