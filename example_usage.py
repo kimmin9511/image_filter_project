@@ -1,4 +1,4 @@
-from image_filter import CustomImageProcessor
+from image_filter.custom_image_processor import CustomImageProcessor
 
 # 이미지 로드
 processor = CustomImageProcessor("example.bmp")
