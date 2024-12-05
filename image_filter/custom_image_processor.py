@@ -77,6 +77,16 @@ class CustomImageProcessor:
         output_file = f"{base}_{suffix}{ext}"
         self.save(output_file)
 
+    def convert_jpg_to_bmp(self, jpg_file, bmp_file):
+        """JPG 파일을 24비트 BMP 파일로 변환."""
+        try:
+            image = Image.open(jpg_file)
+            image = image.convert("RGB")  # RGB로 변환 (24비트 BMP 지원)
+            image.save(bmp_file, "BMP")
+            print(f"Converted {jpg_file} to 24-bit BMP as {bmp_file}")
+        except Exception as e:
+            print(f"Error converting JPG to BMP: {e}")
+
     def apply_grayscale(self, output_file):
         """흑백 이미지 생성."""
         if self.pixels is None:
