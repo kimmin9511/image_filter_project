@@ -156,6 +156,43 @@ class CustomImageProcessor:
         except Exception as e:
             print(f"Error flipping image horizontally: {e}")
 
+    def apply_skin_brightness(self, brightness_factor=1.2, soften_intensity=20, output_file="output_brightness.bmp"):
+        """
+        밝기 증가와 피부 개선 필터
+        - brightness_factor: 밝기를 증가시키는 비율 (기본값 1.2)
+        - soften_intensity: 부드러움을 추가하는 강도 (기본값 20)
+        - output_file: 처리된 이미지를 저장할 파일 경로
+        """
+        if self.pixels is None:
+            print("No image loaded to process.")
+            return
+
+        # 원본 픽셀 데이터를 복사
+        original_pixels = [row[:] for row in self.pixels]
+
+        for y in range(self.height):
+            for x in range(self.width):
+                r, g, b = original_pixels[y][x]
+
+                # 밝기 조정
+                new_r = min(255, int(r * brightness_factor))
+                new_g = min(255, int(g * brightness_factor))
+                new_b = min(255, int(b * brightness_factor))
+
+                # 부드러운 효과 추가
+                softened_r = min(255, new_r + soften_intensity)
+                softened_g = min(255, new_g + soften_intensity)
+                softened_b = min(255, new_b + soften_intensity)
+
+                # 결과 픽셀 업데이트
+                self.pixels[y][x] = (softened_r, softened_g, softened_b)
+
+        # 결과 이미지를 저장
+        self.save(output_file)
+        print(f"Skin brightness filter applied and saved to {output_file}")
+
+
+
     def convert_to_24bit(self, input_file, output_file):
         """32비트 BMP 파일을 24비트 BMP로 변환."""
         try:
