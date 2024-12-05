@@ -8,7 +8,9 @@ class CustomImageProcessor:
         self.height = None
         self.pixels = None
         self.file_name = file_name
-
+	
+	if file_name:
+		self.load(file_name)
     def load(self, file_name):
         """BMP 이미지 파일 로드 (24비트 BMP 형식)."""
         try:
