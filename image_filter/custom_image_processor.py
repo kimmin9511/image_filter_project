@@ -99,6 +99,40 @@ class CustomImageProcessor:
         except Exception as e:
           print(f"Error converting PNG to BMP: {e}")
 
+    def auto_convert_to_24bit_bmp(self, input_file, output_file):
+        """
+        파일 형식을 자동으로 인식하여 24비트 BMP로 변환.
+        - input_file: 입력 파일 경로
+        - output_file: 출력 파일 경로
+        """
+        try:
+            # 파일 확장자 추출
+            _, ext = os.path.splitext(input_file)
+            ext = ext.lower()
+    
+            if ext == ".jpg" or ext == ".jpeg":
+                print(f"Detected format: JPG")
+                self.convert_jpg_to_bmp(input_file, output_file)
+            elif ext == ".png":
+                print(f"Detected format: PNG")
+                self.convert_png_to_bmp(input_file, output_file)
+            elif ext == ".bmp":
+                # BMP 파일 확인
+                with open(input_file, "rb") as f:
+                    f.seek(28)  # BMP의 비트 수 정보 위치로 이동
+                    bit_depth = struct.unpack("<H", f.read(2))[0]
+                if bit_depth == 32:
+                    print(f"Detected format: 32-bit BMP")
+                    self.convert_to_24bit(input_file, output_file)
+                elif bit_depth == 24:
+                    print(f"Detected format: 24-bit BMP (no conversion needed)")
+                    os.rename(input_file, output_file)
+                else:
+                    print(f"Unsupported BMP bit depth: {bit_depth}")
+            else:
+                print(f"Unsupported file format: {ext}")
+        except Exception as e:
+            print(f"Error during auto conversion: {e}")
 
 
 
