@@ -3,14 +3,10 @@ from PIL import Image
 import os
 
 class CustomImageProcessor:
-    def __init__(self, file_name=None):
+    def __init__(self):
         self.width = None
         self.height = None
         self.pixels = None
-        self.file_name = file_name
-
-        if file_name:
-            self.load(file_name)
 
     def load(self, file_name):
         """BMP 이미지 파일 로드 (24비트 BMP 형식)."""
@@ -31,8 +27,10 @@ class CustomImageProcessor:
                     f.read(row_padded - self.width * 3)
         except FileNotFoundError:
             print(f"File not found: {file_name}")
+            raise
         except Exception as e:
             print(f"Error loading image: {e}")
+            raise
 
     def save(self, file_name):
         """BMP 이미지 파일로 저장."""
@@ -66,16 +64,7 @@ class CustomImageProcessor:
                 print(f"Image saved as: {file_name}")
         except Exception as e:
             print(f"Error saving image: {e}")
-
-    def save_with_suffix(self, suffix):
-        """현재 파일 경로에 suffix를 붙여 저장."""
-        if self.file_name is None:
-            print("No file loaded to save.")
-            return
-
-        base, ext = os.path.splitext(self.file_name)
-        output_file = f"{base}_{suffix}{ext}"
-        self.save(output_file)
+            raise
 
     def convert_jpg_to_bmp(self, jpg_file, bmp_file):
         """JPG 파일을 24비트 BMP 파일로 변환."""
@@ -137,46 +126,34 @@ class CustomImageProcessor:
 
 
 
-    def apply_grayscale(self, output_file):
-        """흑백 이미지 생성."""
-        if self.pixels is None:
-            print("No image loaded to process.")
-            return
-
-        original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
+    def apply_grayscale(self, input_file, output_file):
+        """흑백 필터."""
+        self.load(input_file)
         for y in range(self.height):
             for x in range(self.width):
-                r, g, b = original_pixels[y][x]
+                r, g, b = self.pixels[y][x]
                 gray = int(0.299 * r + 0.587 * g + 0.114 * b)
                 self.pixels[y][x] = (gray, gray, gray)
         self.save(output_file)
 
-    def apply_invert_colors(self, output_file):
-        """색상 반전."""
-        if self.pixels is None:
-            print("No image loaded to process.")
-            return
-
-        original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
+    def apply_invert_colors(self, input_file, output_file):
+        """색상 반전 필터."""
+        self.load(input_file)
         for y in range(self.height):
             for x in range(self.width):
-                r, g, b = original_pixels[y][x]
+                r, g, b = self.pixels[y][x]
                 self.pixels[y][x] = (255 - r, 255 - g, 255 - b)
         self.save(output_file)
 
-    def apply_pixelation(self, pixel_size, output_file):
-        """픽셀화."""
-        if self.pixels is None:
-            print("No image loaded to process.")
-            return
-
-        original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
+    def apply_pixelation(self, input_file, output_file, pixel_size=10):
+        """픽셀화 필터."""
+        self.load(input_file)
         for y in range(0, self.height, pixel_size):
             for x in range(0, self.width, pixel_size):
                 block_colors = []
                 for yy in range(y, min(y + pixel_size, self.height)):
                     for xx in range(x, min(x + pixel_size, self.width)):
-                        block_colors.append(original_pixels[yy][xx])
+                        block_colors.append(self.pixels[yy][xx])
 
                 avg_color = tuple(
                     sum(color[i] for color in block_colors) // len(block_colors)
@@ -188,58 +165,47 @@ class CustomImageProcessor:
                         self.pixels[yy][xx] = avg_color
         self.save(output_file)
 
-    def apply_flip_horizontal(self, output_file):
-        """이미지를 좌우 반전."""
-        if self.pixels is None:
-            print("No image loaded to process.")
-            return
-
-        try:
-            original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
-            for y in range(self.height):
-                # 행의 픽셀 순서를 반전
-                self.pixels[y] = list(reversed(original_pixels[y]))
-
-            # 반전된 이미지를 저장
-            self.save(output_file)
-            print(f"Image flipped horizontally and saved as: {output_file}")
-        except Exception as e:
-            print(f"Error flipping image horizontally: {e}")
-
-    def apply_skin_brightness(self, brightness_factor=1.2, soften_intensity=20, output_file="output_brightness.bmp"):
-        """
-        밝기 증가와 피부 개선 필터
-        - brightness_factor: 밝기를 증가시키는 비율 (기본값 1.2)
-        - soften_intensity: 부드러움을 추가하는 강도 (기본값 20)
-        - output_file: 처리된 이미지를 저장할 파일 경로
-        """
-        if self.pixels is None:
-            print("No image loaded to process.")
-            return
-
-        # 원본 픽셀 데이터를 복사
-        original_pixels = [row[:] for row in self.pixels]
-
+    def apply_flip_horizontal(self, input_file, output_file):
+        """좌우 반전 필터."""
+        self.load(input_file)
         for y in range(self.height):
-            for x in range(self.width):
-                r, g, b = original_pixels[y][x]
-
-                # 밝기 조정
-                new_r = min(255, int(r * brightness_factor))
-                new_g = min(255, int(g * brightness_factor))
-                new_b = min(255, int(b * brightness_factor))
-
-                # 부드러운 효과 추가
-                softened_r = min(255, new_r + soften_intensity)
-                softened_g = min(255, new_g + soften_intensity)
-                softened_b = min(255, new_b + soften_intensity)
-
-                # 결과 픽셀 업데이트
-                self.pixels[y][x] = (softened_r, softened_g, softened_b)
-
-        # 결과 이미지를 저장
+            self.pixels[y] = list(reversed(self.pixels[y]))
         self.save(output_file)
-        print(f"Skin brightness filter applied and saved to {output_file}")
+        
+    def apply_skin_brightness(self, input_file, output_file, brightness_factor=1.2, soften_intensity=20):
+        """
+        밝기 증가와 피부 개선 필터.
+        - input_file: 입력 파일 경로.
+        - output_file: 출력 파일 경로.
+        - brightness_factor: 밝기를 증가시키는 비율 (기본값 1.2).
+        - soften_intensity: 부드러움을 추가하는 강도 (기본값 20).
+        """
+        self.load(input_file)  # 이미지를 로드
+        try:
+            # 원본 픽셀 데이터를 복사
+            for y in range(self.height):
+                for x in range(self.width):
+                    r, g, b = self.pixels[y][x]
+
+                    # 밝기 조정
+                    new_r = min(255, int(r * brightness_factor))
+                    new_g = min(255, int(g * brightness_factor))
+                    new_b = min(255, int(b * brightness_factor))
+
+                    # 부드러운 효과 추가
+                    softened_r = min(255, new_r + soften_intensity)
+                    softened_g = min(255, new_g + soften_intensity)
+                    softened_b = min(255, new_b + soften_intensity)
+
+                    # 결과 픽셀 업데이트
+                    self.pixels[y][x] = (softened_r, softened_g, softened_b)
+
+            # 결과 이미지를 저장
+            self.save(output_file)
+            print(f"Skin brightness filter applied and saved to {output_file}")
+        except Exception as e:
+            print(f"Error applying skin brightness filter: {e}")
+
 
 
 
@@ -253,75 +219,43 @@ class CustomImageProcessor:
         except Exception as e:
             print(f"Error converting image: {e}")
         
-    def apply_neon_filter(self, output_file, intensity=1.5):
-        """네온 필터 적용."""
-        if self.pixels is None:
-            print("No image loaded to process.")
-            return
-
-        try:
-            original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
-            for y in range(self.height):
-                for x in range(self.width):
-                    r, g, b = original_pixels[y][x]
-
-                    # 네온 효과: 색상을 강조하고 높은 대비를 적용
-                    nr = min(255, int((r ** 2 / 255) * intensity))
-                    ng = min(255, int((g ** 2 / 255) * intensity))
-                    nb = min(255, int((b ** 2 / 255) * intensity))
-
-                    self.pixels[y][x] = (nr, ng, nb)
-
-            self.save(output_file)
-            print(f"Neon filter applied and saved as: {output_file}")
-        except Exception as e:
-            print(f"Error applying neon filter: {e}")
+    def apply_neon_filter(self, input_file, output_file, intensity=1.5):
+        """네온 필터."""
+        self.load(input_file)
+        for y in range(self.height):
+            for x in range(self.width):
+                r, g, b = self.pixels[y][x]
+                nr = min(255, int((r ** 2 / 255) * intensity))
+                ng = min(255, int((g ** 2 / 255) * intensity))
+                nb = min(255, int((b ** 2 / 255) * intensity))
+                self.pixels[y][x] = (nr, ng, nb)
+        self.save(output_file)
     
-    def apply_sepia_tone(self, output_file):
-        """세피아 톤 필터 적용."""
-        if self.pixels is None:
-            print("No image loaded to process.")
-            return
+    def apply_sepia_tone(self, input_file, output_file):
+        """세피아 톤 필터."""
+        self.load(input_file)
+        for y in range(self.height):
+            for x in range(self.width):
+                r, g, b = self.pixels[y][x]
+                tr = int(0.393 * r + 0.769 * g + 0.189 * b)
+                tg = int(0.349 * r + 0.686 * g + 0.168 * b)
+                tb = int(0.272 * r + 0.534 * g + 0.131 * b)
+                self.pixels[y][x] = (min(255, tr), min(255, tg), min(255, tb))
+        self.save(output_file)
 
+    def apply_blur(self, input_file, output_file, radius=1):
+        """블러 필터."""
+        self.load(input_file)
         try:
-            original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
-            for y in range(self.height):
-                for x in range(self.width):
-                    r, g, b = original_pixels[y][x]
-                    # 세피아 톤 계산
-                    tr = int(0.393 * r + 0.769 * g + 0.189 * b)
-                    tg = int(0.349 * r + 0.686 * g + 0.168 * b)
-                    tb = int(0.272 * r + 0.534 * g + 0.131 * b)
-
-                    # 값이 255를 넘지 않도록 조정
-                    tr, tg, tb = min(255, tr), min(255, tg), min(255, tb)
-
-                    self.pixels[y][x] = (tr, tg, tb)
-
-            self.save(output_file)
-            print(f"Sepia tone filter applied and saved as: {output_file}")
-        except Exception as e:
-            print(f"Error applying sepia tone filter: {e}")
-
-    def apply_blur(self, output_file, radius=1):
-        """
-        블러 필터 적용.
-        - radius: 블러 효과의 강도 (1 이상 정수)
-        """
-        if self.pixels is None:
-            print("No image loaded to process.")
-            return
-
-        try:
-            original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
-            new_pixels = [row[:] for row in self.pixels]  # 변경된 픽셀 저장용
+            original_pixels = [row[:] for row in self.pixels]
+            new_pixels = [row[:] for row in self.pixels]
 
             for y in range(self.height):
                 for x in range(self.width):
                     r_sum, g_sum, b_sum = 0, 0, 0
                     count = 0
 
-                    # 주변 픽셀의 평균 계산
+                    # 주변 픽셀 평균 계산
                     for dy in range(-radius, radius + 1):
                         for dx in range(-radius, radius + 1):
                             ny, nx = y + dy, x + dx
@@ -332,7 +266,7 @@ class CustomImageProcessor:
                                 b_sum += b
                                 count += 1
 
-                    # 평균 값으로 현재 픽셀 설정
+                    # 평균값으로 현재 픽셀 설정
                     new_pixels[y][x] = (
                         r_sum // count,
                         g_sum // count,
@@ -341,6 +275,5 @@ class CustomImageProcessor:
 
             self.pixels = new_pixels
             self.save(output_file)
-            print(f"Blur filter applied with radius {radius} and saved as: {output_file}")
         except Exception as e:
             print(f"Error applying blur filter: {e}")
