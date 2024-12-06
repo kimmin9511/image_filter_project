@@ -33,3 +33,15 @@ processor.apply_skin_brightness(
     soften_intensity=25,    # 부드러움 추가 강도
     output_file="example_jpg_brightness.bmp"  # 결과 저장 파일
 )
+
+#8. 세피아 필터
+processor.load(bmp_file)
+processor.apply_sepia_tone("output_sepia.bmp")
+
+#9. 네온 필터
+processor.load(bmp_file)
+processor.apply_neon_filter("output_neon.bmp", intensity=1.8)
+
+#10. 블러 처리
+processor.load(bmp_file)
+processor.apply_blur("output_blur.bmp", radius=2)
