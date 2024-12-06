@@ -26,3 +26,22 @@ processor.apply_pixelation(pixel_size=20, output_file="example_pixelated.bmp")
 processor.load(bmp_file)
 processor.apply_flip_horizontal("example_flipped.bmp")
 
+#7. 밝기 올리기
+processor.load(bmp_file)
+processor.apply_skin_brightness(
+    brightness_factor=1.3,  # 밝기 증가 비율
+    soften_intensity=25,    # 부드러움 추가 강도
+    output_file="example_jpg_brightness.bmp"  # 결과 저장 파일
+)
+
+#8. 세피아 필터
+processor.load(bmp_file)
+processor.apply_sepia_tone("output_sepia.bmp")
+
+#9. 네온 필터
+processor.load(bmp_file)
+processor.apply_neon_filter("output_neon.bmp", intensity=1.8)
+
+#10. 블러 처리
+processor.load(bmp_file)
+processor.apply_blur("output_blur.bmp", radius=2)
