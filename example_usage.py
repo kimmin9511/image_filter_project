@@ -37,3 +37,5 @@ processor.apply_neon_filter(bmp_file,"example_neon.bmp", intensity=1.8)
 #9. 블러 처리
 processor.apply_blur(bmp_file, "example_blur.bmp", radius=2)
 
+#10. 얼굴 인식
+processor.apply_text_sticker(bmp_file, "example_face.bmp", user_text="Hello World")

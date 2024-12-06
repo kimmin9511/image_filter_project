@@ -277,3 +277,58 @@ class CustomImageProcessor:
             self.save(output_file)
         except Exception as e:
             print(f"Error applying blur filter: {e}")
+
+    def apply_text_sticker(self, input_file, output_file, user_text="Text Sticker"):
+        """
+        이미지에서 얼굴을 인식하고 입력된 문자열을 스티커처럼 얼굴에 덮어씌웁니다.
+        - input_file: 입력 이미지 파일 경로
+        - output_file: 출력 이미지 파일 경로
+        - user_text: 얼굴에 추가할 텍스트
+        """
+        self.load(input_file)
+
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            import numpy as np
+            import cv2
+
+        # 픽셀 데이터를 numpy 배열로 변환
+            image_array = np.array([pixel for row in self.pixels for pixel in row], dtype=np.uint8)
+            image_array = image_array.reshape((self.height, self.width, 3))
+
+        # PIL 이미지 생성
+            pil_image = Image.fromarray(image_array)
+
+        # OpenCV를 사용하여 얼굴 검출
+            cv_image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+            gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+            face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+        # ImageDraw로 텍스트 추가
+            draw = ImageDraw.Draw(pil_image)
+            try:
+                font = ImageFont.truetype("arial.ttf", size=max(10, min(self.width, self.height) // 15))
+            except IOError:
+                font = ImageFont.load_default()
+
+            for (x, y, w, h) in faces:
+                text_bbox = draw.textbbox((0, 0), user_text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
+
+                # 텍스트 배경 그리기
+                draw.rectangle([(x, y), (x + w, y + h)], fill=(0, 0, 0))
+
+                # 텍스트 중앙 배치
+                text_x = x + (w - text_width) // 2
+                text_y = y + (h - text_height) // 2
+                draw.text((text_x, text_y), user_text, font=font, fill=(255, 255, 255))
+
+            # 변환된 이미지를 다시 저장
+            pil_image.save(output_file)
+            print(f"Text sticker applied and saved to {output_file}")
+
+        except Exception as e:
+            print(f"Error applying text sticker: {e}")
+
