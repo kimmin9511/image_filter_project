@@ -29,3 +29,7 @@ processor.apply_skin_brightness(
     soften_intensity=25,    # 부드러움 추가 강도
     output_file="example_32_to_24_brightness.bmp"  # 결과 저장 파일
 )
+
+
+processor.load("example_24bit.bmp")
+processor.apply_text_sticker("얼간이", "example_24bit_multiple_faces.bmp")

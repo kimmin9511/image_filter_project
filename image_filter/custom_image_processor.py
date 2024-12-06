@@ -311,18 +311,27 @@ class CustomImageProcessor:
         except Exception as e:
             print(f"Error applying blur filter: {e}")
 
+            # 수정된 PIL 이미지를 다시 픽셀 데이터로 변환
+            modified_image_array = np.array(pil_image)
+            modified_pixels = []
+            for y in range(self.height):
+                row = []
+                for x in range(self.width):
+                    r, g, b = modified_image_array[y, x]
+                    row.append((r, g, b))
+                modified_pixels.append
+
     def apply_text_sticker(self, user_text, output_file):
-    """
-    이미지에서 얼굴을 인식하고 입력된 문자열을 스티커처럼 얼굴에 덮어씌웁니다.
-    - user_text: 이미지에 적용할 문자열
-    - output_file: 처리된 이미지를 저장할 파일 경로
-    """
+        """
+        이미지에서 얼굴을 인식하고 입력된 문자열을 스티커처럼 얼굴에 덮어씌웁니다.
+        - user_text: 이미지에 적용할 문자열
+        - output_file: 처리된 이미지를 저장할 파일 경로
+        """
         if self.pixels is None:
             print("No image loaded to process.")
             return
 
         try:
-            # 필요한 라이브러리 임포트
             from PIL import Image, ImageDraw, ImageFont
             import numpy as np
             import cv2
@@ -355,8 +364,10 @@ class CustomImageProcessor:
 
         # 각 얼굴 위치에 텍스트 스티커 적용
             for (x, y, w, h) in faces:
-            # 텍스트 크기 계산
-                text_width, text_height = draw.textsize(user_text, font=font)
+            # 텍스트 크기 계산 (textbbox 사용)
+                text_bbox = draw.textbbox((0, 0), user_text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
 
             # 텍스트 배경 사각형 그리기
                 draw.rectangle(
