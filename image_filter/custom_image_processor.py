@@ -310,3 +310,87 @@ class CustomImageProcessor:
             print(f"Blur filter applied with radius {radius} and saved as: {output_file}")
         except Exception as e:
             print(f"Error applying blur filter: {e}")
+
+    def apply_text_sticker(self, user_text, output_file):
+    """
+    이미지에서 얼굴을 인식하고 입력된 문자열을 스티커처럼 얼굴에 덮어씌웁니다.
+    - user_text: 이미지에 적용할 문자열
+    - output_file: 처리된 이미지를 저장할 파일 경로
+    """
+        if self.pixels is None:
+            print("No image loaded to process.")
+            return
+
+        try:
+            # 필요한 라이브러리 임포트
+            from PIL import Image, ImageDraw, ImageFont
+            import numpy as np
+            import cv2
+
+        # 픽셀 데이터를 numpy 배열로 변환
+            image_array = np.array([pixel for row in self.pixels for pixel in row], dtype=np.uint8)
+            image_array = image_array.reshape((self.height, self.width, 3))
+
+        # PIL 이미지 생성
+            pil_image = Image.fromarray(image_array)
+
+        # 얼굴 인식을 위해 OpenCV 사용
+            cv_image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+            gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
+
+        # Haar Cascade 로드 (얼굴 검출기)
+            face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+        # 얼굴 검출
+            faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+
+        # PIL 이미지를 수정하기 위해 ImageDraw 객체 생성
+            draw = ImageDraw.Draw(pil_image)
+
+        # 폰트 설정
+            try:
+                font = ImageFont.truetype("arial.ttf", size=max(10, min(self.width, self.height) // 15))
+            except IOError:
+                font = ImageFont.load_default()
+
+        # 각 얼굴 위치에 텍스트 스티커 적용
+            for (x, y, w, h) in faces:
+            # 텍스트 크기 계산
+                text_width, text_height = draw.textsize(user_text, font=font)
+
+            # 텍스트 배경 사각형 그리기
+                draw.rectangle(
+                    [(x, y), (x + w, y + h)],
+                    fill=(0, 0, 0)  # 검정색 배경
+                )
+
+            # 텍스트를 얼굴 중앙에 배치
+                text_x = x + (w - text_width) // 2
+                text_y = y + (h - text_height) // 2
+
+            # 텍스트 그리기
+                draw.text(
+                    (text_x, text_y),
+                    user_text,
+                    font=font,
+                    fill=(255, 255, 255)  # 흰색 텍스트
+                )
+
+        # 수정된 PIL 이미지를 다시 픽셀 데이터로 변환
+            modified_image_array = np.array(pil_image)
+            modified_pixels = []
+            for y in range(self.height):
+                row = []
+                for x in range(self.width):
+                    r, g, b = modified_image_array[y, x]
+                    row.append((r, g, b))
+                modified_pixels.append(row)
+            self.pixels = modified_pixels
+
+        # 결과 이미지 저장
+            self.save(output_file)
+            print(f"Text sticker applied and saved to {output_file}")
+
+        except Exception as e:
+            print(f"Error applying text sticker: {e}")
+
