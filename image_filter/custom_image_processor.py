@@ -87,6 +87,22 @@ class CustomImageProcessor:
         except Exception as e:
             print(f"Error converting JPG to BMP: {e}")
 
+    def convert_png_to_bmp(self, png_file, bmp_file):
+        """
+        PNG 파일을 24비트 BMP 파일로 변환.
+        """
+        try:
+            image = Image.open(png_file)
+            image = image.convert("RGB")  # RGB로 변환
+            image.save(bmp_file, "BMP")
+            print(f"Converted {png_file} to 24-bit BMP as {bmp_file}")
+        except Exception as e:
+          print(f"Error converting PNG to BMP: {e}")
+
+
+
+
+
     def apply_grayscale(self, output_file):
         """흑백 이미지 생성."""
         if self.pixels is None:
