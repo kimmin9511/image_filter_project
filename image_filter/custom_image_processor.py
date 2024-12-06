@@ -218,3 +218,95 @@ class CustomImageProcessor:
             print(f"Converted {input_file} to 24-bit BMP as {output_file}")
         except Exception as e:
             print(f"Error converting image: {e}")
+        
+    def apply_neon_filter(self, output_file, intensity=1.5):
+        """네온 필터 적용."""
+        if self.pixels is None:
+            print("No image loaded to process.")
+            return
+
+        try:
+            original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
+            for y in range(self.height):
+                for x in range(self.width):
+                    r, g, b = original_pixels[y][x]
+
+                    # 네온 효과: 색상을 강조하고 높은 대비를 적용
+                    nr = min(255, int((r ** 2 / 255) * intensity))
+                    ng = min(255, int((g ** 2 / 255) * intensity))
+                    nb = min(255, int((b ** 2 / 255) * intensity))
+
+                    self.pixels[y][x] = (nr, ng, nb)
+
+            self.save(output_file)
+            print(f"Neon filter applied and saved as: {output_file}")
+        except Exception as e:
+            print(f"Error applying neon filter: {e}")
+    
+    def apply_sepia_tone(self, output_file):
+        """세피아 톤 필터 적용."""
+        if self.pixels is None:
+            print("No image loaded to process.")
+            return
+
+        try:
+            original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
+            for y in range(self.height):
+                for x in range(self.width):
+                    r, g, b = original_pixels[y][x]
+                    # 세피아 톤 계산
+                    tr = int(0.393 * r + 0.769 * g + 0.189 * b)
+                    tg = int(0.349 * r + 0.686 * g + 0.168 * b)
+                    tb = int(0.272 * r + 0.534 * g + 0.131 * b)
+
+                    # 값이 255를 넘지 않도록 조정
+                    tr, tg, tb = min(255, tr), min(255, tg), min(255, tb)
+
+                    self.pixels[y][x] = (tr, tg, tb)
+
+            self.save(output_file)
+            print(f"Sepia tone filter applied and saved as: {output_file}")
+        except Exception as e:
+            print(f"Error applying sepia tone filter: {e}")
+
+    def apply_blur(self, output_file, radius=1):
+        """
+        블러 필터 적용.
+        - radius: 블러 효과의 강도 (1 이상 정수)
+        """
+        if self.pixels is None:
+            print("No image loaded to process.")
+            return
+
+        try:
+            original_pixels = [row[:] for row in self.pixels]  # 원본 픽셀 복사
+            new_pixels = [row[:] for row in self.pixels]  # 변경된 픽셀 저장용
+
+            for y in range(self.height):
+                for x in range(self.width):
+                    r_sum, g_sum, b_sum = 0, 0, 0
+                    count = 0
+
+                    # 주변 픽셀의 평균 계산
+                    for dy in range(-radius, radius + 1):
+                        for dx in range(-radius, radius + 1):
+                            ny, nx = y + dy, x + dx
+                            if 0 <= ny < self.height and 0 <= nx < self.width:
+                                r, g, b = original_pixels[ny][nx]
+                                r_sum += r
+                                g_sum += g
+                                b_sum += b
+                                count += 1
+
+                    # 평균 값으로 현재 픽셀 설정
+                    new_pixels[y][x] = (
+                        r_sum // count,
+                        g_sum // count,
+                        b_sum // count,
+                    )
+
+            self.pixels = new_pixels
+            self.save(output_file)
+            print(f"Blur filter applied with radius {radius} and saved as: {output_file}")
+        except Exception as e:
+            print(f"Error applying blur filter: {e}")
