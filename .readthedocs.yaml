@@ -1,0 +1,13 @@
+# .readthedocs.yaml
+version: 2
+
+# 프로젝트 언어 및 빌드 방식 설정
+sphinx:
+  configuration: docs/source/conf.py
+
+# Python 환경 설정
+python:
+  version: 3.8
+  install:
+    - requirements: docs/requirements.txt
+
