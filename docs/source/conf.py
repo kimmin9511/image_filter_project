@@ -39,7 +39,7 @@ autosummary_generate = True
 autodoc_default_options = {
     'members': True,
     'undoc-members': True,
-    'show-inheritance': True,
+    'show-inheritance': False,
 }
 
 # 지원 파일 형식
