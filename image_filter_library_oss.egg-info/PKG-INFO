@@ -15,6 +15,8 @@ License-File: LICENSE
 Requires-Dist: pillow
 Requires-Dist: numpy
 Requires-Dist: opencv-python
+Requires-Dist: sphinx
+Requires-Dist: sphinx-autodoc-typehints
 
 이미지 필터 라이브러리  
 BMP 이미지를 처리하기 위한 Python 라이브러리입니다. 주요 기능은 다음과 같습니다:  
