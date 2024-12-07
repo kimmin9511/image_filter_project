@@ -5,11 +5,13 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath('image_filter_project_fork/image_filter/'))
-project = 'image_filter_project_test'
+
+project = 'image_filter_project_oss'
 copyright = '2024, jihoon'
 author = 'jihoon'
 release = '0.1'
@@ -23,18 +25,19 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
     'sphinx_autodoc_typehints',
-    'myst_parser',  # Markdown 지원
 ]
 
-# HTML 테마
-html_theme = 'alabaster'
 
-# 정적 파일
+
+
+# -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+
+html_theme = 'alabaster'
 html_static_path = ['_static']
 html_logo = '_static/logo.png'
 html_favicon = '_static/favicon.ico'
 
-# 자동 요약 생성
 autosummary_generate = True
 autodoc_default_options = {
     'members': True,
@@ -42,5 +45,4 @@ autodoc_default_options = {
     'show-inheritance': False,
 }
 
-# 지원 파일 형식
-source_suffix = ['.rst', '.md']
+source_suffix = ['.rst']

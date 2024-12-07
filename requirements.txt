@@ -1,5 +1,3 @@
 sphinx
-sphinx-rtd-theme
-myst-parser       # Markdown 문법 지원
-sphinx-autodoc-typehints # Type hint를 포함한 API 문서화 지원
+sphinx-autodoc-typehints
 
