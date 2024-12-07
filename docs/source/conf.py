@@ -5,30 +5,42 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+import os
+import sys
 
-project = 'image_filter_docs'
-copyright = '2024, neh1104'
-author = 'neh1104'
+sys.path.insert(0, os.path.abspath('image_filter_project_fork/image_filter'))
+project = 'image_filter_project_test'
+copyright = '2024, jihoon'
+author = 'jihoon'
 release = '0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-import os
-import sys
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
+    'sphinx_autodoc_typehints',
+    'myst_parser',  # Markdown 지원
+]
 
-# 프로젝트 루트 경로를 sys.path에 추가
-sys.path.insert(0, os.path.abspath('../../image_filter'))
-
-extensions = ['sphinx.ext.autodoc','sphinx.ext.napoleon','sphinx.ext.viewcode']
-
-templates_path = ['_templates']
-exclude_patterns = []
-
-
-
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-
+# HTML 테마
 html_theme = 'alabaster'
+
+# 정적 파일
 html_static_path = ['_static']
+html_logo = '_static/logo.png'
+html_favicon = '_static/favicon.ico'
+
+# 자동 요약 생성
+autosummary_generate = True
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': True,
+    'show-inheritance': True,
+}
+
+# 지원 파일 형식
+source_suffix = ['.rst', '.md']
