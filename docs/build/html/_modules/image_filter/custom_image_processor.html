@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>image_filter.custom_image_processor &#8212; image_filter_project_test 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=2709fde1"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for image_filter.custom_image_processor</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<div class="viewcode-block" id="CustomImageProcessor">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor">[docs]</a>
+<span class="k">class</span> <span class="nc">CustomImageProcessor</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="CustomImageProcessor.load">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.load">[docs]</a>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BMP 이미지 파일 로드 (24비트 BMP 형식).&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">54</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;ii&quot;</span><span class="p">,</span> <span class="n">header</span><span class="p">[</span><span class="mi">18</span><span class="p">:</span><span class="mi">26</span><span class="p">])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image loaded: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">row_padded</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="mi">3</span>
+                <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                    <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                        <span class="n">b</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;BBB&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+                        <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">row_padded</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading image: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.save">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.save">[docs]</a>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BMP 이미지 파일로 저장.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No image loaded to save.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">row_padded</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="mi">3</span>
+                <span class="n">file_size</span> <span class="o">=</span> <span class="mi">54</span> <span class="o">+</span> <span class="n">row_padded</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span>
+                <span class="n">header</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span>
+                    <span class="s2">&quot;&lt;2sIHHIIIIHHIIIIII&quot;</span><span class="p">,</span>
+                    <span class="sa">b</span><span class="s2">&quot;BM&quot;</span><span class="p">,</span>
+                    <span class="n">file_size</span><span class="p">,</span>
+                    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="mi">54</span><span class="p">,</span>
+                    <span class="mi">40</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                    <span class="mi">1</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span>
+                    <span class="mi">0</span><span class="p">,</span> <span class="n">row_padded</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>
+                    <span class="mi">2835</span><span class="p">,</span> <span class="mi">2835</span><span class="p">,</span>
+                    <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+                <span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;BBB&quot;</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">r</span><span class="p">))</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="p">(</span><span class="n">row_padded</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Image saved as: </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving image: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.convert_jpg_to_bmp">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.convert_jpg_to_bmp">[docs]</a>
+    <span class="k">def</span> <span class="nf">convert_jpg_to_bmp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jpg_file</span><span class="p">,</span> <span class="n">bmp_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;JPG 파일을 24비트 BMP 파일로 변환.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">jpg_file</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>  <span class="c1"># RGB로 변환 (24비트 BMP 지원)</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">bmp_file</span><span class="p">,</span> <span class="s2">&quot;BMP&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converted </span><span class="si">{</span><span class="n">jpg_file</span><span class="si">}</span><span class="s2"> to 24-bit BMP as </span><span class="si">{</span><span class="n">bmp_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error converting JPG to BMP: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.convert_png_to_bmp">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.convert_png_to_bmp">[docs]</a>
+    <span class="k">def</span> <span class="nf">convert_png_to_bmp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">png_file</span><span class="p">,</span> <span class="n">bmp_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PNG 파일을 24비트 BMP 파일로 변환.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">png_file</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>  <span class="c1"># RGB로 변환</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">bmp_file</span><span class="p">,</span> <span class="s2">&quot;BMP&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converted </span><span class="si">{</span><span class="n">png_file</span><span class="si">}</span><span class="s2"> to 24-bit BMP as </span><span class="si">{</span><span class="n">bmp_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+          <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error converting PNG to BMP: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.auto_convert_to_24bit_bmp">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.auto_convert_to_24bit_bmp">[docs]</a>
+    <span class="k">def</span> <span class="nf">auto_convert_to_24bit_bmp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        파일 형식을 자동으로 인식하여 24비트 BMP로 변환.</span>
+<span class="sd">        - input_file: 입력 파일 경로</span>
+<span class="sd">        - output_file: 출력 파일 경로</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># 파일 확장자 추출</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    
+            <span class="k">if</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.jpg&quot;</span> <span class="ow">or</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.jpeg&quot;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected format: JPG&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">convert_jpg_to_bmp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.png&quot;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected format: PNG&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">convert_png_to_bmp</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ext</span> <span class="o">==</span> <span class="s2">&quot;.bmp&quot;</span><span class="p">:</span>
+                <span class="c1"># BMP 파일 확인</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span>  <span class="c1"># BMP의 비트 수 정보 위치로 이동</span>
+                    <span class="n">bit_depth</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;H&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">2</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">bit_depth</span> <span class="o">==</span> <span class="mi">32</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected format: 32-bit BMP&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">convert_to_24bit</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">bit_depth</span> <span class="o">==</span> <span class="mi">24</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected format: 24-bit BMP (no conversion needed)&quot;</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported BMP bit depth: </span><span class="si">{</span><span class="n">bit_depth</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported file format: </span><span class="si">{</span><span class="n">ext</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error during auto conversion: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="CustomImageProcessor.apply_grayscale">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_grayscale">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_grayscale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;흑백 필터.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span>
+                <span class="n">gray</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.299</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">0.587</span> <span class="o">*</span> <span class="n">g</span> <span class="o">+</span> <span class="mf">0.114</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">gray</span><span class="p">,</span> <span class="n">gray</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.apply_invert_colors">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_invert_colors">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_invert_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;색상 반전 필터.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span> <span class="o">-</span> <span class="n">r</span><span class="p">,</span> <span class="mi">255</span> <span class="o">-</span> <span class="n">g</span><span class="p">,</span> <span class="mi">255</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.apply_pixelation">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_pixelation">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_pixelation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">pixel_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;픽셀화 필터.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">pixel_size</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="n">pixel_size</span><span class="p">):</span>
+                <span class="n">block_colors</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">yy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)):</span>
+                    <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)):</span>
+                        <span class="n">block_colors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">yy</span><span class="p">][</span><span class="n">xx</span><span class="p">])</span>
+
+                <span class="n">avg_color</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">block_colors</span><span class="p">)</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">block_colors</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">yy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)):</span>
+                    <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">pixel_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">yy</span><span class="p">][</span><span class="n">xx</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_color</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.apply_flip_horizontal">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_flip_horizontal">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_flip_horizontal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;좌우 반전 필터.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="CustomImageProcessor.apply_skin_brightness">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_skin_brightness">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_skin_brightness</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">brightness_factor</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">soften_intensity</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        밝기 증가와 피부 개선 필터.</span>
+<span class="sd">        - input_file: 입력 파일 경로.</span>
+<span class="sd">        - output_file: 출력 파일 경로.</span>
+<span class="sd">        - brightness_factor: 밝기를 증가시키는 비율 (기본값 1.2).</span>
+<span class="sd">        - soften_intensity: 부드러움을 추가하는 강도 (기본값 20).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>  <span class="c1"># 이미지를 로드</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># 원본 픽셀 데이터를 복사</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                    <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span>
+
+                    <span class="c1"># 밝기 조정</span>
+                    <span class="n">new_r</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">brightness_factor</span><span class="p">))</span>
+                    <span class="n">new_g</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="n">brightness_factor</span><span class="p">))</span>
+                    <span class="n">new_b</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">brightness_factor</span><span class="p">))</span>
+
+                    <span class="c1"># 부드러운 효과 추가</span>
+                    <span class="n">softened_r</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="n">new_r</span> <span class="o">+</span> <span class="n">soften_intensity</span><span class="p">)</span>
+                    <span class="n">softened_g</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="n">new_g</span> <span class="o">+</span> <span class="n">soften_intensity</span><span class="p">)</span>
+                    <span class="n">softened_b</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="n">new_b</span> <span class="o">+</span> <span class="n">soften_intensity</span><span class="p">)</span>
+
+                    <span class="c1"># 결과 픽셀 업데이트</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">softened_r</span><span class="p">,</span> <span class="n">softened_g</span><span class="p">,</span> <span class="n">softened_b</span><span class="p">)</span>
+
+            <span class="c1"># 결과 이미지를 저장</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skin brightness filter applied and saved to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error applying skin brightness filter: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="CustomImageProcessor.convert_to_24bit">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.convert_to_24bit">[docs]</a>
+    <span class="k">def</span> <span class="nf">convert_to_24bit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;32비트 BMP 파일을 24비트 BMP로 변환.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">&quot;RGB&quot;</span><span class="p">)</span>
+            <span class="n">image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;BMP&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converted </span><span class="si">{</span><span class="n">input_file</span><span class="si">}</span><span class="s2"> to 24-bit BMP as </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error converting image: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="CustomImageProcessor.apply_neon_filter">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_neon_filter">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_neon_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">intensity</span><span class="o">=</span><span class="mf">1.5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;네온 필터.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span>
+                <span class="n">nr</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">r</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span> <span class="o">*</span> <span class="n">intensity</span><span class="p">))</span>
+                <span class="n">ng</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">g</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span> <span class="o">*</span> <span class="n">intensity</span><span class="p">))</span>
+                <span class="n">nb</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="nb">int</span><span class="p">((</span><span class="n">b</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">255</span><span class="p">)</span> <span class="o">*</span> <span class="n">intensity</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">nr</span><span class="p">,</span> <span class="n">ng</span><span class="p">,</span> <span class="n">nb</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="CustomImageProcessor.apply_sepia_tone">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_sepia_tone">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_sepia_tone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;세피아 톤 필터.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span>
+                <span class="n">tr</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.393</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">0.769</span> <span class="o">*</span> <span class="n">g</span> <span class="o">+</span> <span class="mf">0.189</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span>
+                <span class="n">tg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.349</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">0.686</span> <span class="o">*</span> <span class="n">g</span> <span class="o">+</span> <span class="mf">0.168</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span>
+                <span class="n">tb</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.272</span> <span class="o">*</span> <span class="n">r</span> <span class="o">+</span> <span class="mf">0.534</span> <span class="o">*</span> <span class="n">g</span> <span class="o">+</span> <span class="mf">0.131</span> <span class="o">*</span> <span class="n">b</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="n">tr</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="n">tg</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="n">tb</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.apply_blur">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_blur">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_blur</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;블러 필터.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">original_pixels</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">]</span>
+            <span class="n">new_pixels</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+                    <span class="n">r_sum</span><span class="p">,</span> <span class="n">g_sum</span><span class="p">,</span> <span class="n">b_sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+                    <span class="c1"># 주변 픽셀 평균 계산</span>
+                    <span class="k">for</span> <span class="n">dy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">radius</span><span class="p">,</span> <span class="n">radius</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">dx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="n">radius</span><span class="p">,</span> <span class="n">radius</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">ny</span><span class="p">,</span> <span class="n">nx</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">dy</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="n">dx</span>
+                            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">ny</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">nx</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">:</span>
+                                <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">original_pixels</span><span class="p">[</span><span class="n">ny</span><span class="p">][</span><span class="n">nx</span><span class="p">]</span>
+                                <span class="n">r_sum</span> <span class="o">+=</span> <span class="n">r</span>
+                                <span class="n">g_sum</span> <span class="o">+=</span> <span class="n">g</span>
+                                <span class="n">b_sum</span> <span class="o">+=</span> <span class="n">b</span>
+                                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="c1"># 평균값으로 현재 픽셀 설정</span>
+                    <span class="n">new_pixels</span><span class="p">[</span><span class="n">y</span><span class="p">][</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">r_sum</span> <span class="o">//</span> <span class="n">count</span><span class="p">,</span>
+                        <span class="n">g_sum</span> <span class="o">//</span> <span class="n">count</span><span class="p">,</span>
+                        <span class="n">b_sum</span> <span class="o">//</span> <span class="n">count</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span> <span class="o">=</span> <span class="n">new_pixels</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error applying blur filter: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CustomImageProcessor.apply_text_sticker">
+<a class="viewcode-back" href="../../filters.html#image_filter.custom_image_processor.CustomImageProcessor.apply_text_sticker">[docs]</a>
+    <span class="k">def</span> <span class="nf">apply_text_sticker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_file</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">user_text</span><span class="o">=</span><span class="s2">&quot;Text Sticker&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        이미지에서 얼굴을 인식하고 입력된 문자열을 스티커처럼 얼굴에 덮어씌웁니다.</span>
+<span class="sd">        - input_file: 입력 이미지 파일 경로</span>
+<span class="sd">        - output_file: 출력 이미지 파일 경로</span>
+<span class="sd">        - user_text: 얼굴에 추가할 텍스트</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageDraw</span><span class="p">,</span> <span class="n">ImageFont</span>
+            <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+            <span class="kn">import</span> <span class="nn">cv2</span>
+
+        <span class="c1"># 픽셀 데이터를 numpy 배열로 변환</span>
+            <span class="n">image_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pixel</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pixels</span> <span class="k">for</span> <span class="n">pixel</span> <span class="ow">in</span> <span class="n">row</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">image_array</span> <span class="o">=</span> <span class="n">image_array</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+        <span class="c1"># PIL 이미지 생성</span>
+            <span class="n">pil_image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">image_array</span><span class="p">)</span>
+
+        <span class="c1"># OpenCV를 사용하여 얼굴 검출</span>
+            <span class="n">cv_image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pil_image</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2BGR</span><span class="p">)</span>
+            <span class="n">gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">cv_image</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>
+            <span class="n">face_cascade</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">CascadeClassifier</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">haarcascades</span> <span class="o">+</span> <span class="s1">&#39;haarcascade_frontalface_default.xml&#39;</span><span class="p">)</span>
+            <span class="n">faces</span> <span class="o">=</span> <span class="n">face_cascade</span><span class="o">.</span><span class="n">detectMultiScale</span><span class="p">(</span><span class="n">gray</span><span class="p">,</span> <span class="n">scaleFactor</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">minNeighbors</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">minSize</span><span class="o">=</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+
+        <span class="c1"># ImageDraw로 텍스트 추가</span>
+            <span class="n">draw</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">pil_image</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">font</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">truetype</span><span class="p">(</span><span class="s2">&quot;arial.ttf&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span> <span class="o">//</span> <span class="mi">15</span><span class="p">))</span>
+            <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+                <span class="n">font</span> <span class="o">=</span> <span class="n">ImageFont</span><span class="o">.</span><span class="n">load_default</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="ow">in</span> <span class="n">faces</span><span class="p">:</span>
+                <span class="n">text_bbox</span> <span class="o">=</span> <span class="n">draw</span><span class="o">.</span><span class="n">textbbox</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">user_text</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">)</span>
+                <span class="n">text_width</span> <span class="o">=</span> <span class="n">text_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">text_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">text_height</span> <span class="o">=</span> <span class="n">text_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">text_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="c1"># 텍스트 배경 그리기</span>
+                <span class="n">draw</span><span class="o">.</span><span class="n">rectangle</span><span class="p">([(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">w</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="n">h</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+                <span class="c1"># 텍스트 중앙 배치</span>
+                <span class="n">text_x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="n">w</span> <span class="o">-</span> <span class="n">text_width</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="n">text_y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="n">text_height</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+                <span class="n">draw</span><span class="o">.</span><span class="n">text</span><span class="p">((</span><span class="n">text_x</span><span class="p">,</span> <span class="n">text_y</span><span class="p">),</span> <span class="n">user_text</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">font</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+            <span class="c1"># 변환된 이미지를 다시 저장</span>
+            <span class="n">pil_image</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Text sticker applied and saved to </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error applying text sticker: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">image_filter_project_test</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../functions.html">Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../filters.html">Filters</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, jihoon.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
