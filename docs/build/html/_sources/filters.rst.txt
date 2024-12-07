@@ -4,6 +4,6 @@ Filters
 Let me introduce our filters ;)
 
 .. automodule:: image_filter.custom_image_processor
-    :members: apply_grayscale,apply_invert_colors,apply_pixelation,apply_flip_horizontal,apply_skin_brightness,apply_neon_filter,apply_sephia_tone,apply_blur,apply_text_sticker
-    :undoc-members:
-
+   :members:
+   :exclude-members: auto_convert_to_24bit_bmp, convert_jpg_to_bmp, convert_png_to_bmp, convert_to_24bit, load, save
+   :show-inheritance: False

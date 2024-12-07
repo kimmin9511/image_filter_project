@@ -1,10 +1,10 @@
-.. image_filter_docs documentation master file, created by
-   sphinx-quickstart on Sat Dec  7 17:36:16 2024.
+.. image_filter_project_test documentation master file, created by
+   sphinx-quickstart on Sat Dec  7 21:51:39 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 image_filter_docs documentation
-===============================
+=======================================
 
 Our library supports applying filters to images in **JPG**, **PNG**, and **BMP** formats.
 You can easily load an image, apply various filters, and save the result in BMP format.

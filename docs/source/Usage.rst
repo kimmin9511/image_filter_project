@@ -21,14 +21,3 @@ Add these imports to your script to use the library:
 
     import struct
     import os
-    from PIL import Image
-    import numpy as np
-    import cv2
-
-**Dependencies**
-----------------
-
-- **Pillow**: For image opening, saving, and format conversion.
-- **OpenCV**: For face detection and other image processing tasks.
-- **NumPy**: For handling pixel data as arrays.
-
