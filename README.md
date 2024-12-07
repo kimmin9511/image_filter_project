@@ -12,4 +12,4 @@ jpg, png, 32bit bmp 파일을 24bit bmp 파일로 변환
 이외에도 다양한 필터가 있습니다.  
   
 설치 방법  
-pip install image-filter-library-oss==1.1.0
+pip install image-filter-library-oss==1.1.1 

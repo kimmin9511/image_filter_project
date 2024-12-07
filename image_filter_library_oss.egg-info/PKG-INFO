@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: image_filter_library_oss
-Version: 1.1.0
+Version: 1.1.1
 Summary: A library for processing BMP images
 Home-page: https://github.com/kimmin9511/image_filter_project
 Author: kimmin9511
@@ -15,6 +15,8 @@ License-File: LICENSE
 Requires-Dist: pillow
 Requires-Dist: numpy
 Requires-Dist: opencv-python
+Requires-Dist: sphinx
+Requires-Dist: sphinx-autodoc-typehints
 
 이미지 필터 라이브러리  
 BMP 이미지를 처리하기 위한 Python 라이브러리입니다. 주요 기능은 다음과 같습니다:  
@@ -30,4 +32,4 @@ jpg, png, 32bit bmp 파일을 24bit bmp 파일로 변환
 이외에도 다양한 필터가 있습니다.  
   
 설치 방법  
-pip install image-filter-library-oss==1.1.0
+pip install image-filter-library-oss==1.1.1 
