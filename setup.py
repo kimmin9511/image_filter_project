@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="image_filter_library_oss",
-    version="1.1.1",
+    version="1.1.2",
     description="A library for processing BMP images",
     author="kimmin9511",
     author_email="gimm50655@gmail.com",
