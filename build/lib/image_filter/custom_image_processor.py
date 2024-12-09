@@ -127,7 +127,13 @@ class CustomImageProcessor:
 
 
     def apply_grayscale(self, input_file, output_file):
-        """흑백 필터."""
+        """
+        흑백 필터
+
+        이미지에 흑백(그레이스케일) 필터를 적용합니다.
+        RGB 값을 하나의 그레이스케일 값으로 변환하여 색상이 없는 흑백 이미지로 만듭니다.
+
+        """
         self.load(input_file)
         for y in range(self.height):
             for x in range(self.width):
@@ -137,7 +143,13 @@ class CustomImageProcessor:
         self.save(output_file)
 
     def apply_invert_colors(self, input_file, output_file):
-        """색상 반전 필터."""
+        """
+        색상 반전 필터
+
+        이미지에 색상 반전(네거티브) 필터를 적용합니다.
+        각 픽셀의 RGB 값을 반전시켜 원본 이미지의 보색(complementary color)으로 변환합니다.
+
+        """
         self.load(input_file)
         for y in range(self.height):
             for x in range(self.width):
@@ -146,7 +158,16 @@ class CustomImageProcessor:
         self.save(output_file)
 
     def apply_pixelation(self, input_file, output_file, pixel_size=10):
-        """픽셀화 필터."""
+        """
+        픽셀화 필터
+
+        이미지에 픽셀화(모자이크) 필터를 적용합니다.
+        이미지를 작은 블록으로 나누고 각 블록의 평균 색상으로 채워서, 블록 단위의 거친 느낌을 만듭니다.
+        
+        참고:
+        pixel_size: 픽셀화 블록의 크기 (기본값: 10). 값이 클수록 픽셀화 강도가 높아집니다.
+
+        """
         self.load(input_file)
         for y in range(0, self.height, pixel_size):
             for x in range(0, self.width, pixel_size):
@@ -166,7 +187,13 @@ class CustomImageProcessor:
         self.save(output_file)
 
     def apply_flip_horizontal(self, input_file, output_file):
-        """좌우 반전 필터."""
+        """
+        좌우 반전 필터
+
+        이미지에 좌우 반전(수평 반전) 필터를 적용합니다.
+        이미지의 각 가로 줄(행)의 픽셀 순서를 뒤집어 좌우가 반전된 이미지를 생성합니다.
+
+        """
         self.load(input_file)
         for y in range(self.height):
             self.pixels[y] = list(reversed(self.pixels[y]))
@@ -174,11 +201,14 @@ class CustomImageProcessor:
         
     def apply_skin_brightness(self, input_file, output_file, brightness_factor=1.2, soften_intensity=20):
         """
-        밝기 증가와 피부 개선 필터.
-        - input_file: 입력 파일 경로.
-        - output_file: 출력 파일 경로.
-        - brightness_factor: 밝기를 증가시키는 비율 (기본값 1.2).
-        - soften_intensity: 부드러움을 추가하는 강도 (기본값 20).
+        미백 필터
+
+        피부 톤을 개선하고 이미지의 밝기를 조정하는 필터입니다.
+        밝기를 높이면서 부드러운 효과를 추가하여, 피부를 더욱 화사하고 매끄럽게 보이도록 합니다.
+
+        참고:
+        brightness_factor: 밝기를 증가시키는 비율 (기본값 1.2).
+        soften_intensity: 부드러움을 추가하는 강도 (기본값 20).
         """
         self.load(input_file)  # 이미지를 로드
         try:
@@ -220,7 +250,15 @@ class CustomImageProcessor:
             print(f"Error converting image: {e}")
         
     def apply_neon_filter(self, input_file, output_file, intensity=1.5):
-        """네온 필터."""
+        """
+        네온 필터
+        
+        이미지에 강렬하고 빛나는 색상을 적용하여 네온사인과 같은 효과를 만듭니다.
+        RGB 값의 제곱을 기반으로 강도를 조절해 색상을 더 밝고 선명하게 강조합니다.
+        
+        참고:
+        intensity: 네온 효과의 강도 조절 (기본값은 1.5). 값이 클수록 색상이 더 밝고 강렬해집니다.
+        """
         self.load(input_file)
         for y in range(self.height):
             for x in range(self.width):
@@ -232,7 +270,12 @@ class CustomImageProcessor:
         self.save(output_file)
     
     def apply_sepia_tone(self, input_file, output_file):
-        """세피아 톤 필터."""
+        """
+        세피아 톤 필터
+
+        세피아 톤은 이미지에 따뜻하고 오래된 느낌을 주는 갈색 톤의 효과입니다.
+        RGB 값에 특정 비율을 적용하여 세피아 색조를 만듭니다.
+        """
         self.load(input_file)
         for y in range(self.height):
             for x in range(self.width):
@@ -244,7 +287,12 @@ class CustomImageProcessor:
         self.save(output_file)
 
     def apply_blur(self, input_file, output_file, radius=1):
-        """블러 필터."""
+        """
+        블러 필터
+
+        이미지의 각 픽셀 주변의 평균 색상값을 계산하여 부드럽고 흐릿한 효과를 만듭니다.
+        반경(radius) 값에 따라 블러의 강도가 조절됩니다. 반경이 클수록 더 강한 블러가 적용됩니다.
+        """
         self.load(input_file)
         try:
             original_pixels = [row[:] for row in self.pixels]
@@ -280,10 +328,12 @@ class CustomImageProcessor:
 
     def apply_text_sticker(self, input_file, output_file, user_text="Text Sticker"):
         """
+        스티커 필터
         이미지에서 얼굴을 인식하고 입력된 문자열을 스티커처럼 얼굴에 덮어씌웁니다.
-        - input_file: 입력 이미지 파일 경로
-        - output_file: 출력 이미지 파일 경로
-        - user_text: 얼굴에 추가할 텍스트
+
+        참고:
+        - `arial.ttf` 폰트가 없으면 기본 폰트를 사용합니다.
+        - 얼굴 인식을 위해 OpenCV Haar Cascade 파일이 필요합니다.
         """
         self.load(input_file)
 

@@ -37,45 +37,67 @@
 <p>Let me introduce our filters ;)</p>
 <dl class="py class" id="module-image_filter.custom_image_processor">
 <dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">image_filter.custom_image_processor.</span></span><span class="sig-name descname"><span class="pre">CustomImageProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">image_filter.custom_image_processor.</span></span><span class="sig-name descname"><span class="pre">CustomImageProcessor</span></span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
+<dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_blur">
+<span class="sig-name descname"><span class="pre">apply_blur</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_blur"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_blur" title="Link to this definition">¶</a></dt>
+<dd><p>블러 필터.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_flip_horizontal">
-<span class="sig-name descname"><span class="pre">apply_flip_horizontal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_flip_horizontal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_flip_horizontal" title="Link to this definition">¶</a></dt>
-<dd><p>이미지를 좌우 반전.</p>
+<span class="sig-name descname"><span class="pre">apply_flip_horizontal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_flip_horizontal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_flip_horizontal" title="Link to this definition">¶</a></dt>
+<dd><p>좌우 반전 필터.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_grayscale">
-<span class="sig-name descname"><span class="pre">apply_grayscale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_grayscale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_grayscale" title="Link to this definition">¶</a></dt>
-<dd><p>흑백 이미지 생성.</p>
+<span class="sig-name descname"><span class="pre">apply_grayscale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_grayscale"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_grayscale" title="Link to this definition">¶</a></dt>
+<dd><p>흑백 필터.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_invert_colors">
-<span class="sig-name descname"><span class="pre">apply_invert_colors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_invert_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_invert_colors" title="Link to this definition">¶</a></dt>
-<dd><p>색상 반전.</p>
+<span class="sig-name descname"><span class="pre">apply_invert_colors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_invert_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_invert_colors" title="Link to this definition">¶</a></dt>
+<dd><p>색상 반전 필터.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_neon_filter">
+<span class="sig-name descname"><span class="pre">apply_neon_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intensity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_neon_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_neon_filter" title="Link to this definition">¶</a></dt>
+<dd><p>네온 필터.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_pixelation">
-<span class="sig-name descname"><span class="pre">apply_pixelation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_pixelation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_pixelation" title="Link to this definition">¶</a></dt>
-<dd><p>픽셀화.</p>
+<span class="sig-name descname"><span class="pre">apply_pixelation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_pixelation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_pixelation" title="Link to this definition">¶</a></dt>
+<dd><p>픽셀화 필터.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_sepia_tone">
+<span class="sig-name descname"><span class="pre">apply_sepia_tone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_sepia_tone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_sepia_tone" title="Link to this definition">¶</a></dt>
+<dd><p>세피아 톤 필터.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_skin_brightness">
-<span class="sig-name descname"><span class="pre">apply_skin_brightness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">brightness_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soften_intensity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'output_brightness.bmp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_skin_brightness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_skin_brightness" title="Link to this definition">¶</a></dt>
-<dd><p>밝기 증가와 피부 개선 필터
-- brightness_factor: 밝기를 증가시키는 비율 (기본값 1.2)
-- soften_intensity: 부드러움을 추가하는 강도 (기본값 20)
-- output_file: 처리된 이미지를 저장할 파일 경로</p>
+<span class="sig-name descname"><span class="pre">apply_skin_brightness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">brightness_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soften_intensity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_skin_brightness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_skin_brightness" title="Link to this definition">¶</a></dt>
+<dd><p>밝기 증가와 피부 개선 필터.
+- input_file: 입력 파일 경로.
+- output_file: 출력 파일 경로.
+- brightness_factor: 밝기를 증가시키는 비율 (기본값 1.2).
+- soften_intensity: 부드러움을 추가하는 강도 (기본값 20).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.save_with_suffix">
-<span class="sig-name descname"><span class="pre">save_with_suffix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.save_with_suffix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.save_with_suffix" title="Link to this definition">¶</a></dt>
-<dd><p>현재 파일 경로에 suffix를 붙여 저장.</p>
+<dt class="sig sig-object py" id="image_filter.custom_image_processor.CustomImageProcessor.apply_text_sticker">
+<span class="sig-name descname"><span class="pre">apply_text_sticker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Text</span> <span class="pre">Sticker'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/image_filter/custom_image_processor.html#CustomImageProcessor.apply_text_sticker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#image_filter.custom_image_processor.CustomImageProcessor.apply_text_sticker" title="Link to this definition">¶</a></dt>
+<dd><p>이미지에서 얼굴을 인식하고 입력된 문자열을 스티커처럼 얼굴에 덮어씌웁니다.
+- input_file: 입력 이미지 파일 경로
+- output_file: 출력 이미지 파일 경로
+- user_text: 얼굴에 추가할 텍스트</p>
 </dd></dl>
 
 </dd></dl>

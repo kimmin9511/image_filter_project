@@ -9,7 +9,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('image_filter_project_fork/image_filter/'))
+sys.path.insert(0, os.path.abspath('image_filter_project/image_filter/'))
 
 project = 'image_filter_library_oss'
 copyright = '2024, jihoon'
